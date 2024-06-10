@@ -1,11 +1,14 @@
 const express = require("express");
 const app = express();
-const ejs = require("ejs");
+const ejs = require("ejs");//instead og the html
 const expressLayout = require("express-ejs-layouts");
-const path = require('path');
+const path = require('path');//make easy with working with the path
+
 
 
 const PORT = process.env.PORT || 3000;
+
+app.use(express.static('public')) //after add  this color is applied to this 
 
 // Set the view engine and views directory
 app.set(expressLayout);
