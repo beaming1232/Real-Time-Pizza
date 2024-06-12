@@ -43,4 +43,4 @@ function cartController() {
     }
 }
 
-module.exports = cartController
+module.exports = cartController;
