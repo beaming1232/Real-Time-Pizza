@@ -1,15 +1,20 @@
-require("dotenv").config();
 const express = require("express");
 const app = express();
+require("dotenv").config();
 const ejs = require("ejs"); //instead of the html
 const expressLayout = require("express-ejs-layouts");
 const path = require("path"); //make easy with working with the path
 const session = require("express-session");
 const mongoose = require("mongoose");
-const flash = require("express-flash");
+const flash = require("express-flash");//IT RETURN IN THE FORM OF RES FORM THE SERVER THE OBJECTS NAME MESSAGES THIS OBJ HAS KEY VALUE PAIR WE CAN RETRIVES ALL THE  SERVER RESPONCES BY THIS IN OUR FRONT END....
 const Mongodbstore = require("connect-mongo")(session); //it is basically stores the session in the db's....
+const passport = require('passport')
 
+
+app.use(flash());
 app.use(express.json());
+app.use(express.urlencoded({extended :false}))
+
 
 /****************************db calls ********************/
 const url = "mongodb://localhost/pizza";
@@ -48,12 +53,24 @@ app.use(
   })
 );
 
-app.use(flash());
+/*------------------------------------------------ */
+const passportInit = require('./app/config/passport')
+passportInit(passport)
+app.use(passport.initialize())
+app.use(passport.session())
+
+/*---------------------------------------------------- */
+
+
+
 
 const PORT = process.env.PORT || 3000;
 
+
+//GLOBAL MIDDLEWARE
 app.use((req, res, next) => {
-  res.locals.session = req.session;
+  res.locals.session = req.session;//THIS IS BASICALLY ACT AS GLOBALLY WE USE  THE SESSION IN THE MANY FILE SO TO AVAILBLE THE SESSION ON EACH FILE WE USED THIS GLOBAL MIDDLWARE...
+  res.locals.user=req.user; //THIS IS GLOBAL MIDDLEWARE WHERE USER IS USED BY THE LAYOUT FILE FOR THE  SHOWIN OR HIDE THE LOGIN  AND REGISTERS....
   next();
 });
 
