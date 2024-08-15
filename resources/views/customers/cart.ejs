@@ -1,7 +1,7 @@
 
 <section class="cart py-16">
      
-    <%if(session.cart){%>
+    <%if(session.cart){%> <!--here we used an session method to see  the cart for  the each customers-->
     <div class="order container mx-auto  w-1/2">
         <div  class="flex item-center border-b border-gray-300 pb-4">
  
@@ -13,6 +13,7 @@
 
 
         <div class="pizza-list">
+           
             <% for(let pizza of Object.values(session.cart.items)) { %>
                 <div class="flex items-center my-8">
                     <img class="w-24" src="/img/<%= pizza.item.image %>" alt="">
@@ -36,20 +37,25 @@
             <span class="amount text-2xl font-bold ml-2">₹<%= session.cart.totalPrice %></span>
         </div>
 
-        <div>
-            <form action="" class="mt-12">
-                <input class="border border-gray-400 p-2 w-1/2 mb-4" type="text" placeholder="phone numbers">
+        <% if(user){ %>
 
-                <input class="border border-gray-400 p-2 w-1/2" type="text" placeholder="adress">
+        <div>
+            <form action="/orders" method="post" class="mt-12">
+                <input name="phone" class="border border-gray-400 p-2 w-1/2 mb-4" type="text" placeholder="phone numbers">
+
+                <input name="address" class="border border-gray-400 p-2 w-1/2" type="text" placeholder="adress">
 
               <div>
-                <button class="btn-primary px-6 py-2  rounded-full text-white font-bold mt-6" type="submit">order now</button> 
+                <button type="submit" class="btn-primary px-6 py-2  rounded-full text-white font-bold mt-6" type="submit">order now</button> 
               </div>
             </form>
         </div>
 
-        <a class="inline-block cursor-pointer px-6  btn-primary px-6 py-2  rounded-full text-white font-bold mt-6" href="">Login to continue</a>
+        <%} else {%>
 
+
+        <a class="inline-block cursor-pointer px-6  btn-primary px-6 py-2  rounded-full text-white font-bold mt-6" href="/login">Login to continue</a>
+          <%}%>
     </div>
 
     </div>

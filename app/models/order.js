@@ -3,8 +3,8 @@ const Schema = mongoose.Schema
 
 const orderSchema = new Schema({
     customerId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'User',
+               type: mongoose.Schema.Types.ObjectId,
+                ref: 'user',
                 required: true
                 },
     items: { type: Object, required: true },
@@ -15,4 +15,4 @@ const orderSchema = new Schema({
     status: { type: String, default: 'order_placed'},
 }, { timestamps: true })
 
-module.exports = mongoose.model('Order', orderSchema)
+module.exports = mongoose.model('order', orderSchema)

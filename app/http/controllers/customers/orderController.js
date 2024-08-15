@@ -1,74 +1,81 @@
-const Order = require('../../../models/order')
-const moment = require('moment')
-const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY)
-function orderController () {
+const { Console } = require("console");
+const order=require("../../../models/order")
+const moment=require("moment")
+
+function orderController() {
+    
     return {
-        store(req, res) {
-            // Validate request
-            const { phone, address, stripeToken, paymentType } = req.body
-            if(!phone || !address) {
-                return res.status(422).json({ message : 'All fields are required' });
+        store(req,res){
+            const {phone,address}=req.body;
+
+            if(!phone || !address){
+                req.flash('error',"all fileds are required")
+                return res.redirect('/cart')
             }
 
-            const order = new Order({
-                customerId: req.user._id,
-                items: req.session.cart.items,
-                phone,
-                address
-            })
-            order.save().then(result => {
-                Order.populate(result, { path: 'customerId' }, (err, placedOrder) => {
-                    // req.flash('success', 'Order placed successfully')
+            const Order=new order({
+                customerId:req.user._id,
+                items:req.session.cart.items,
+                phone:phone,
+                address:address
 
-                    // Stripe payment
-                    if(paymentType === 'card') {
-                        stripe.charges.create({
-                            amount: req.session.cart.totalPrice  * 100,
-                            source: stripeToken,
-                            currency: 'inr',
-                            description: `Pizza order: ${placedOrder._id}`
-                        }).then(() => {
-                            placedOrder.paymentStatus = true
-                            placedOrder.paymentType = paymentType
-                            placedOrder.save().then((ord) => {
-                                // Emit
-                                const eventEmitter = req.app.get('eventEmitter')
-                                eventEmitter.emit('orderPlaced', ord)
-                                delete req.session.cart
-                                return res.json({ message : 'Payment successful, Order placed successfully' });
-                            }).catch((err) => {
-                                console.log(err)
-                            })
-
-                        }).catch((err) => {
-                            delete req.session.cart
-                            return res.json({ message : 'OrderPlaced but payment failed, You can pay at delivery time' });
-                        })
-                    } else {
-                        delete req.session.cart
-                        return res.json({ message : 'Order placed succesfully' });
-                    }
-                })
-            }).catch(err => {
-                return res.status(500).json({ message : 'Something went wrong' });
             })
+
+            Order.save().then(result=>{
+
+                req.flash('success','ordere placed successfully')
+                //ONCES THE ORDERES GET THE SUCESS THEN WE HAVE MAKE AN ADD TO CART FILEDS EMPTY SO  FOR THAT 
+                //WE DELEETD AN CART DATA FORM THE  CURRENTS  SESSIONS ...
+                 delete  req.session.cart
+                return res.redirect("/customer/orders")
+
+            }).catch(err=>{
+
+                req.flash("error","SOMENTHING WENT WRONG")
+
+
+                return res.redirect("/cart");
+            })
+
+
+        
+        
+
+          
         },
-        async index(req, res) {
-            const orders = await Order.find({ customerId: req.user._id },
-                null,
-                { sort: { 'createdAt': -1 } } )
-            res.header('Cache-Control', 'no-store')
-            res.render('customers/orders', { orders: orders, moment: moment })
+
+       async index(req,res){
+            //here we have to find all the orders of the particular customers 
+            //CUSTOMERS DETAILS ARE  BASCIALLY PRESENT IN THE  REQ.BODY SO FETCH THIS CUSTOMERS ID  AND FIND IN THE D.B PARICULAR USER IS PRESENT OR NOT
+            
+            //alaways make sure that new the orderes is at the top
+           // const Orders=await order.find({customerId: req.user._id}->normal orders finding ....
+            const Orders=await order.find({customerId: req.user._id},null,{sort:{'createdAt':-1}})//->asecnding orderes finding query
+
+
+            
+            
+           return res.render('customers/orders',{orders:Orders,moment:moment})
         },
-        async show(req, res) {
-            const order = await Order.findById(req.params.id)
-            // Authorize user
-            if(req.user._id.toString() === order.customerId.toString()) {
-                return res.render('customers/singleOrder', { order })
-            }
-            return  res.redirect('/')
+        
+        //used to track the orders bar...
+       async show(req,res){
+
+        const  Order=await order.findById(req.params.id);
+
+         //authorized the users...->it can happen that another person who not ordered the pizza can track the orderes by their ordered id
+         //so first check if the requsetd use have the id same as the id in the orderd database
+         
+         if(req.user._id.toString() === Order.customerId.toString()) {
+            return res.render('customers/singleOrder', { Order:Order })
+        }
+        return  res.redirect('/')
+
+
+
         }
     }
+    
 }
 
-module.exports = orderController
+module.exports = orderController; 

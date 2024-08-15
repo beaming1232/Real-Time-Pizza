@@ -16,11 +16,10 @@
 
 
 <section class="menu container mx-auto py-8">
-    <h1>All pizzas</h1>
-
+    <h1 class="text-xl font-bold mb-8">All Pizzas</h1>
     <div class="grid grid-cols-4 col-gap-12 row-gap-16">
-
-       <%pizzas.forEach((pizza)=>{   %>
+     
+       <%pizzas.forEach((pizza)=>{   %> <!--it Returs the array of the  objects form the server conatin  all the pizzas data-->
         <div class="w-64">
             <img class="h-40 mb-4  mx-auto" src="/img/<%= pizza.image%>" alt>
 

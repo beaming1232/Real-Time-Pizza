@@ -9,6 +9,8 @@ const mongoose = require("mongoose");
 const flash = require("express-flash");//IT RETURN IN THE FORM OF RES FORM THE SERVER THE OBJECTS NAME MESSAGES THIS OBJ HAS KEY VALUE PAIR WE CAN RETRIVES ALL THE  SERVER RESPONCES BY THIS IN OUR FRONT END....
 const Mongodbstore = require("connect-mongo")(session); //it is basically stores the session in the db's....
 const passport = require('passport')
+const Emitter = require('events')
+
 
 
 app.use(flash());
@@ -41,11 +43,14 @@ let mongostore = new Mongodbstore({
   collection: "session", //it is basicaly create an tables in the db which is  used to stores the session in the db's
 });
 
+/*Event emiiter is basiclly used for the emitting the event status here once we update the ordered status form the admin panel this event emitter get emits see->admin/order */
+const eventEmitter = new Emitter()
+app.set('eventEmitter', eventEmitter)
+
+
 /*session use for the storing the cart items.... */
-app.use(
-  session({
-    secret:
-      "kerajiii" /*here we have to  add the secrect forn the .env files  */,
+app.use( session({
+    secret:"kerajiii" /*here we have to  add the secrect form the .env files  */,
     resave: false,
     store: mongostore,
     saveUninitialized: false,
@@ -54,7 +59,9 @@ app.use(
 );
 
 /*------------------------------------------------ */
-const passportInit = require('./app/config/passport')
+const passportInit = require('./app/config/passport');
+const Server = require("socket.io");
+const { Socket } = require("dgram");
 passportInit(passport)
 app.use(passport.initialize())
 app.use(passport.session())

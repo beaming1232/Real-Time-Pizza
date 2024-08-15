@@ -2,7 +2,11 @@ const user=require("../../models/user")
 const bcrypt=require("bcrypt")
 const passport=require("passport")
 
-function authController(){
+function authController(){ 
+
+    const _getRedirectUrl = (req) => {
+        return req.user.role === 'admin' ? '/admin/orders' : '/customer/orders'
+    }
 
     return {
         login(req,res){
@@ -20,7 +24,7 @@ function authController(){
             //valideta the req..
             if(!name || !email || !password){
                 req.flash('error','All filed are required')//HERE ERROR IS KEY AND OTHER IS MESSAGE ONCES THE SERVER IS RESPOND TO THE CLIENTS FLASH IS SEND IT AS  THE OBJECTS OF MESSAGES THIS MESSSAGE.KEY IS USED FOR THE DEBUGGING
-                req.flash('name',name);//HERE ERROR IS KEY AND OTHER IS MESSAGE ONCES THE SERVER IS RESPOND TO THE CLIENTS FLASH IS SEND IT AS  THE OBJECTS OF MESSAGES THIS MESSSAGE.KEY IS USED FOR THE DEBUGGING
+                req.flash('name',name);//HERE ERROR IS KEY AND OTHER IS MESSAGE ONCES THE SERVER IS RESPOND TO THE CLIENTS FLASH IS SEND IT AS  THE OBJECTS OF MESSAGES THIS MESSSAGE.KEY IS USED FOR THE RETRIVASL
                 req.flash('email',email);//HERE ERROR IS KEY AND OTHER IS MESSAGE ONCES THE SERVER IS RESPOND TO THE CLIENTS FLASH IS SEND IT AS  THE OBJECTS OF MESSAGES THIS MESSSAGE.KEY IS USED FOR THE DEBUGGING
 
                 return res.redirect('/register');
@@ -49,7 +53,7 @@ function authController(){
 
 
             User.save().then(()=>{
-                return res.redirect("/register")
+                return res.redirect("/")//IF THE USER CAN REGISTER GO TO THE HOME PAGE
 
             }).catch((err)=>{
                 req.flash('error','SOMENTHING WENT WRONG !')//HERE ERROR IS KEY AND OTHER IS MESSAGE ONCES THE SERVER IS RESPOND TO THE CLIENTS FLASH IS SEND IT AS  THE OBJECTS OF MESSAGES THIS MESSSAGE.KEY IS USED FOR THE DEBUGGING
@@ -62,7 +66,7 @@ function authController(){
 
         },
         
-        postLogin(req, res, next) {
+        postLogin(req, res, next) {   //here  postlogin use the passport system so that why here we used this syntax
             const { email, password }   = req.body
            // Validate request 
             if(!email || !password) {
@@ -84,7 +88,7 @@ function authController(){
                         return next(err)
                     }
 
-                    return res.redirect("/")
+                    return res.redirect(_getRedirectUrl(req))
                 })
             })(req, res, next)
         },

@@ -3,7 +3,7 @@
     <div class="w-full max-w-xs">
         <form action="/register" method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
           
-          <% if(messages.error) {%>
+          <% if(messages.error) {%> <!--MESSAGES IS BASICALLY OBJ RETURN BY THE FLASH MEATHOS FROM  THE SERVER-->
           <span class="text-red-500 text-sm"><%= messages.error %></span>
 
              <%}%>
